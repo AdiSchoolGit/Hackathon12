@@ -1,14 +1,14 @@
 /*
  * Clumsy Aztecs - Arduino Box Controller
  * Integrated with your base servo code + WiFi backend communication
- * 
+ *
  * Features:
  * - Receives pickup codes from backend via Serial Port
  * - Stores codes in memory
  * - Opens motor when valid code is entered (via Serial Monitor or keypad)
  * - Verifies codes with backend via WiFi
  * - Supports web app pickup code entry
- * 
+ *
  * COPY THIS ENTIRE FILE INTO ARDUINO IDE
  */
 
@@ -25,11 +25,11 @@ const int CLOSED_POS = 0;   // adjust depending on your mechanism
 const int OPEN_TIME = 10000; // 10 seconds (in milliseconds)
 
 // WiFi credentials - UPDATE THESE!
-const char* ssid = "YOUR_WIFI_SSID";        // Change this to your WiFi name
-const char* password = "YOUR_WIFI_PASSWORD"; // Change this to your WiFi password
+const char* ssid = "Adi's phone";        // Change this to your WiFi name
+const char* password = "0dds1809"; // Change this to your WiFi password
 
 // Backend server - UPDATE THIS WITH YOUR COMPUTER'S IP!
-const char* serverUrl = "http://10.130.55.25:4000";  // Change 10.130.55.25 to your computer's IP
+const char* serverUrl = "http://10.130.55.25:5174";  // Change 10.130.55.25 to your computer's IP
 const String boxId = "BOX_1";  // Your box identifier
 
 // Code entry (from your base code)
@@ -108,7 +108,7 @@ void loop() {
   // This runs continuously to catch backend messages
   while (Serial.available() > 0) {
     char c = Serial.read();
-    
+
     // If we see 'C', start building a potential CODE message from backend
     if (c == 'C' && serialBuffer.length() == 0) {
       serialBuffer = "C";
@@ -116,20 +116,20 @@ void loop() {
     // If we're building a CODE message, continue
     else if (serialBuffer.length() > 0) {
       serialBuffer += c;
-      
+
       // Check if we have a complete line
       if (c == '\n' || c == '\r') {
         serialBuffer.trim();
-        
+
         // Parse format: "CODE:1234:BOX_1"
         if (serialBuffer.startsWith("CODE:")) {
           int codeStart = 5; // After "CODE:"
           int codeEnd = serialBuffer.indexOf(':', codeStart);
-          
+
           if (codeEnd > codeStart) {
             String pickupCode = serialBuffer.substring(codeStart, codeEnd);
             String receivedBoxId = serialBuffer.substring(codeEnd + 1);
-            
+
             // Only store if it's for this box
             if (receivedBoxId == boxId) {
               addValidCode(pickupCode);
@@ -138,10 +138,10 @@ void loop() {
             }
           }
         }
-        
+
         serialBuffer = "";
       }
-      
+
       // Reset if buffer gets too long (not a CODE message)
       if (serialBuffer.length() > 50) {
         serialBuffer = "";
@@ -171,7 +171,7 @@ void loop() {
       }
     }
   }
-  
+
   // Handle auto-submit when 4 digits entered (for keypad)
   if (inputCode.length() == 4) {
     Serial.println();
@@ -191,7 +191,7 @@ void addValidCode(String code) {
       return; // Already stored
     }
   }
-  
+
   // Add to list if there's space
   if (codeCount < 20) {
     validCodes[codeCount] = code;
@@ -209,7 +209,7 @@ void addValidCode(String code) {
 void checkCode() {
   Serial.print("Verifying code: ");
   Serial.println(inputCode);
-  
+
   // First check if code is in stored list (fast check)
   bool foundInList = false;
   for (int i = 0; i < codeCount; i++) {
@@ -219,7 +219,7 @@ void checkCode() {
       break;
     }
   }
-  
+
   // Also verify with backend (for security and status update)
   if (WiFi.status() == WL_CONNECTED) {
     Serial.print("Connecting to server... ");
@@ -289,12 +289,12 @@ void checkForOpenRequest() {
 
   if (httpResponseCode > 0) {
     String response = http.getString();
-    
+
     // Check if should open
     if (response.indexOf("\"shouldOpen\":true") > 0) {
       Serial.println("Web app requested box open. Opening...");
       openDoor();
-      
+
       // After opening, confirm to backend by calling pickup-request
       int pickupCodeStart = response.indexOf("\"pickupCode\":\"");
       if (pickupCodeStart > 0) {
@@ -316,11 +316,11 @@ void confirmPickup(String code) {
   String url = String(serverUrl) + "/api/pickup-request";
   http.begin(client, url);
   http.addHeader("Content-Type", "application/json");
-  
+
   String jsonPayload = "{\"pickupCode\":\"" + code + "\",\"boxId\":\"" + boxId + "\"}";
   http.POST(jsonPayload);
   http.end();
-  
+
   Serial.println("Pickup confirmed to backend.");
 }
 

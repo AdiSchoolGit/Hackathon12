@@ -15,14 +15,14 @@ let isPortOpen = false;
 // Common Arduino serial port paths (will try to auto-detect)
 // Note: On macOS, use 'cu.' for outgoing serial connections (not 'tty.')
 const commonPorts = [
-    '/dev/cu.usbmodem101',  // macOS - Your Arduino (found via port scanner)
+    '/dev/cu.usbmodem101', // macOS - Your Arduino (found via port scanner)
     '/dev/cu.usbserial-110', // macOS - Alternative port
-    '/dev/cu.usbmodem110',  // macOS (Arduino 110)
+    '/dev/cu.usbmodem110', // macOS (Arduino 110)
     '/dev/cu.usbmodem1101', // macOS
-    '/dev/ttyUSB0',         // Linux
-    '/dev/ttyACM0',         // Linux
-    'COM3',                 // Windows
-    'COM4'                  // Windows
+    '/dev/ttyUSB0', // Linux
+    '/dev/ttyACM0', // Linux
+    'COM3', // Windows
+    'COM4' // Windows
 ];
 
 /**
@@ -111,7 +111,7 @@ async function findArduinoPort() {
             const hasUsbSerial = port.path.includes('usbserial');
             return hasArduinoManufacturer || hasUsbModem || hasUsbSerial;
         });
-        
+
         // If found, convert tty. to cu. for macOS (cu. is for outgoing connections)
         if (arduinoPort && arduinoPort.path.startsWith('/dev/tty.')) {
             const cuPath = arduinoPort.path.replace('/dev/tty.', '/dev/cu.');
@@ -145,6 +145,8 @@ export function sendPickupCodeToArduino(pickupCode, boxId, cardId) {
         return;
     }
 
+    console.log(`[Arduino] 🚀 Sending pickup code: ${pickupCode} to ${boxId} (Card: ${cardId})`);
+
     // Store the code
     const codeEntry = {
         pickupCode,
@@ -159,17 +161,26 @@ export function sendPickupCodeToArduino(pickupCode, boxId, cardId) {
 
     // Try to initialize connection if not already connected
     if (!isPortOpen) {
-        initializeArduinoConnection().catch(err => {
-            console.error('[Arduino] Error initializing connection:', err);
+        console.log('[Arduino] 🔌 Port not open, attempting to connect...');
+        initializeArduinoConnection().then(connected => {
+            if (connected && isPortOpen) {
+                // Wait a moment for port to be fully ready, then send
+                setTimeout(() => {
+                    sendCodeToArduino(pickupCode, boxId);
+                    codeEntry.sent = true;
+                    console.log(`[Arduino] ✅ Code ${pickupCode} sent after connection established`);
+                }, 500);
+            } else {
+                console.log(`[Arduino] ⚠️ Could not connect. Code ${pickupCode} will be sent when Arduino connects`);
+            }
+        }).catch(err => {
+            console.error('[Arduino] ❌ Error initializing connection:', err);
         });
-    }
-
-    // Send to Arduino if port is open
-    if (isPortOpen && serialPort) {
+    } else {
+        // Port is already open, send immediately
         sendCodeToArduino(pickupCode, boxId);
         codeEntry.sent = true;
-    } else {
-        console.log(`[Arduino] ⚠️ Port not open, code ${pickupCode} will be sent when Arduino connects`);
+        console.log(`[Arduino] ✅ Code ${pickupCode} sent immediately (port already open)`);
     }
 }
 

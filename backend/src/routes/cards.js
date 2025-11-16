@@ -33,15 +33,21 @@ const __dirname = path.dirname(__filename);
  * Generate a pickup code using only digits 1, 2, 3, 4
  * @param {number} length - Length of the code (default: 4)
  * @returns {string} Pickup code
+ *
+ * HARDCODED: Always returns "1134" for testing
  */
 function generatePickupCode(length = 4) {
-    const allowedDigits = ['1', '2', '3', '4'];
-    let code = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * allowedDigits.length);
-        code += allowedDigits[randomIndex];
-    }
-    return code;
+    // HARDCODED: Always return "1134" for Arduino testing
+    return '1134';
+
+    // Original random generation (disabled):
+    // const allowedDigits = ['1', '2', '3', '4'];
+    // let code = '';
+    // for (let i = 0; i < length; i++) {
+    //     const randomIndex = Math.floor(Math.random() * allowedDigits.length);
+    //     code += allowedDigits[randomIndex];
+    // }
+    // return code;
 }
 
 // Configure multer for image uploads
@@ -87,6 +93,7 @@ router.post('/found-card-photo', upload.single('cardImage'), async(req, res) => 
 
         // Generate a pickup code if box is assigned (using only digits 1, 2, 3, 4)
         const pickupCode = boxId ? generatePickupCode(4) : null;
+        console.log('[Route] Generated pickup code:', { pickupCode, boxId, hasBoxId: !!boxId });
 
         // Create card record first
         const card = createCard({
@@ -97,6 +104,7 @@ router.post('/found-card-photo', upload.single('cardImage'), async(req, res) => 
             pickupCode: pickupCode,
             status: 'waiting_for_email'
         });
+        console.log('[Route] Card created with pickup code:', { cardId: card.id, pickupCode: card.pickupCode, boxId: card.boxId });
 
         // Send pickup code to Arduino if generated
         if (pickupCode && boxId) {
@@ -224,8 +232,19 @@ router.post('/found-card-photo', upload.single('cardImage'), async(req, res) => 
                     boxId: currentCard.boxId,
                     pickupCode: currentCard.pickupCode,
                     locationDescription: currentCard.locationDescription,
-                    finderContact: currentCard.finderContact
+                    finderContact: currentCard.finderContact,
+                    hasPickupCode: !!currentCard.pickupCode,
+                    pickupCodeValue: currentCard.pickupCode
                 });
+
+                // Ensure pickup code is set if boxId exists
+                if (currentCard.boxId && !currentCard.pickupCode) {
+                    console.log('[Route] ⚠️ WARNING: Card has boxId but no pickup code! Generating now...');
+                    const missingPickupCode = generatePickupCode(4);
+                    updateCard(currentCard.id, { pickupCode: missingPickupCode });
+                    currentCard.pickupCode = missingPickupCode;
+                    console.log('[Route] ✅ Generated and set missing pickup code:', missingPickupCode);
+                }
 
                 emailAddress = owner.email;
                 console.log(`[Route] Attempting to send email to: ${emailAddress}`);

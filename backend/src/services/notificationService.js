@@ -27,7 +27,9 @@ export async function notifyOwnerOfFoundCard(owner, card) {
     console.log(`[Notification Service] Preparing to notify owner:`, {
         email: owner.email,
         name: owner.fullName,
-        cardId: card.id
+        cardId: card.id,
+        boxId: card.boxId,
+        pickupCode: card.pickupCode
     });
 
     const sendGridApiKey = process.env.SENDGRID_API_KEY;
@@ -93,6 +95,15 @@ function getEmailContent(owner, card) {
     const referenceCode = card.id ? card.id.substring(0, 8).toUpperCase() : 'N/A';
     let text = '';
     let html = '';
+
+    // Log card data for debugging
+    console.log('[Notification Service] Email content - Card data:', {
+        cardId: card.id,
+        boxId: card.boxId,
+        pickupCode: card.pickupCode,
+        hasBoxId: !!card.boxId,
+        hasPickupCode: !!card.pickupCode
+    });
 
     if (card.boxId && card.pickupCode) {
         // Card is in a pickup box
@@ -169,12 +180,12 @@ Your SDSU ID card has been found!
 
 REFERENCE CODE: ${referenceCode}
 
-The person who found your card has provided contact information:
+${card.boxId && card.pickupCode ? `PICKUP LOCATION: ${card.boxId}\nPICKUP CODE: ${card.pickupCode}\n\nPlease go to ${card.boxId} and enter the pickup code ${card.pickupCode} to retrieve your card.\n\n` : ''}The person who found your card has provided contact information:
 ${card.finderContact}
 
 ${card.locationDescription ? `Drop-off Location: ${card.locationDescription}` : ''}
 
-Please contact them to arrange pickup of your card.
+${card.boxId && card.pickupCode ? '' : 'Please contact them to arrange pickup of your card.'}
 
 You can check your card status anytime using your reference code: ${referenceCode}
 
@@ -209,6 +220,12 @@ Clumsy Aztecs
       <div class="ref-code-box">${referenceCode}</div>
       <p style="font-size: 13px; color: #666; margin-top: -10px;">Use this code to check your card status anytime</p>
 
+      ${card.boxId && card.pickupCode ? `
+      <p><strong>Pickup Location:</strong> ${card.boxId}</p>
+      <div class="code-box">${card.pickupCode}</div>
+      <p>Please go to <strong>${card.boxId}</strong> and enter the pickup code above to retrieve your card.</p>
+      ` : ''}
+
       <div class="contact-box">
         <p><strong>Contact the finder:</strong></p>
         <p>${card.finderContact}</p>
@@ -216,7 +233,7 @@ Clumsy Aztecs
 
       ${card.locationDescription ? `<p><strong>Drop-off Location:</strong> ${card.locationDescription}</p>` : ''}
 
-      <p>Please contact them to arrange pickup of your card.</p>
+      ${card.boxId && card.pickupCode ? '' : '<p>Please contact them to arrange pickup of your card.</p>'}
     </div>
     <div class="footer">
       <p>Best regards,<br>Clumsy Aztecs</p>
@@ -234,7 +251,7 @@ Your SDSU ID card has been found!
 
 REFERENCE CODE: ${referenceCode}
 
-${card.locationDescription ? `Drop-off Location: ${card.locationDescription}` : 'Drop-off location information not provided.'}
+${card.boxId && card.pickupCode ? `PICKUP LOCATION: ${card.boxId}\nPICKUP CODE: ${card.pickupCode}\n\nPlease go to ${card.boxId} and enter the pickup code ${card.pickupCode} to retrieve your card.\n\n` : ''}${card.locationDescription ? `Drop-off Location: ${card.locationDescription}` : 'Drop-off location information not provided.'}
 
 Please check Clumsy Aztecs for more details: http://localhost:5173/status
 
@@ -268,6 +285,12 @@ Clumsy Aztecs
       <p><strong>Reference Code:</strong></p>
       <div class="ref-code-box">${referenceCode}</div>
       <p style="font-size: 13px; color: #666; margin-top: -10px;">Use this code to check your card status anytime</p>
+
+      ${card.boxId && card.pickupCode ? `
+      <p><strong>Pickup Location:</strong> ${card.boxId}</p>
+      <div class="code-box">${card.pickupCode}</div>
+      <p>Please go to <strong>${card.boxId}</strong> and enter the pickup code above to retrieve your card.</p>
+      ` : ''}
 
       ${card.locationDescription ? `<p><strong>Drop-off Location:</strong> ${card.locationDescription}</p>` : '<p>Drop-off location information not provided.</p>'}
 

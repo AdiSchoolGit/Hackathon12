@@ -1,11 +1,11 @@
 /**
  * Test Arduino Serial Communication
  * Run: node test-arduino-communication.js
- * 
+ *
  * This tests if the backend can communicate with Arduino via Serial Port
  */
 
-import { 
+import {
     initializeArduinoConnection,
     sendPickupCodeToArduino,
     getAllStoredCodes
@@ -18,11 +18,11 @@ console.log('   VSCode is just the editor. Backend sends codes via Serial Port.\
 // Try to find Arduino port
 async function testConnection() {
     let connected = false;
-    
+
     // Try auto-detect first
     console.log('🔍 Step 1: Auto-detecting Arduino port...\n');
     connected = await initializeArduinoConnection(null);
-    
+
     if (!connected) {
         // Try common ports
         console.log('🔍 Step 2: Trying common ports...\n');
@@ -31,7 +31,7 @@ async function testConnection() {
             '/dev/cu.usbserial-110',
             '/dev/cu.usbmodem101'
         ];
-        
+
         for (const port of portsToTry) {
             console.log(`   Trying: ${port}...`);
             connected = await initializeArduinoConnection(port);
@@ -42,7 +42,7 @@ async function testConnection() {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
     }
-    
+
     if (!connected) {
         console.log('\n❌ Could not connect to Arduino.\n');
         console.log('💡 Troubleshooting:');
@@ -52,14 +52,14 @@ async function testConnection() {
         console.log('   4. Update port in talkToArduino.js if needed');
         process.exit(1);
     }
-    
+
     // Wait for connection to establish
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     // Test sending a code
     console.log('📦 Step 3: Sending test pickup code: 1234 to BOX_1...\n');
     sendPickupCodeToArduino('1234', 'BOX_1', 'test-card-123');
-    
+
     // Wait and check results
     setTimeout(() => {
         console.log('\n📋 Step 4: Checking stored codes...');
@@ -75,7 +75,7 @@ async function testConnection() {
         } else {
             console.log('   ⚠️  Code stored but may not have been sent yet');
         }
-        
+
         process.exit(0);
     }, 3000);
 }
