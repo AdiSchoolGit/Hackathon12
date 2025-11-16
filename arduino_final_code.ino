@@ -93,11 +93,16 @@ void loop() {
   }
 
   // Check for incoming serial data from backend (CODE:1234:BOX_1 format)
-  if (Serial.available() > 0) {
+  // This runs continuously to catch backend messages
+  while (Serial.available() > 0) {
     char c = Serial.read();
     
-    // Check if this is a message from backend (starts with "CODE:")
-    if (c == 'C' || serialBuffer.length() > 0) {
+    // If we see 'C', start building a potential CODE message
+    if (c == 'C' && serialBuffer.length() == 0) {
+      serialBuffer = "C";
+    }
+    // If we're building a CODE message, continue
+    else if (serialBuffer.length() > 0) {
       serialBuffer += c;
       
       // Check if we have a complete line
@@ -130,7 +135,7 @@ void loop() {
         serialBuffer = "";
       }
     }
-    // Otherwise, treat as user input (digits 1-4)
+    // If not building CODE message and it's a digit 1-4, treat as user input
     else if (c >= '1' && c <= '4') {
       if (inputCode.length() < 4) {
         inputCode += c;
@@ -138,7 +143,7 @@ void loop() {
       }
     }
     // If user presses enter or code is complete
-    else if (c == '\n' || c == '\r' || inputCode.length() == 4) {
+    else if (c == '\n' || c == '\r') {
       if (inputCode.length() == 4) {
         Serial.println();
         checkCode();
@@ -153,6 +158,14 @@ void loop() {
         Serial.print("\b \b");
       }
     }
+  }
+  
+  // Handle auto-submit when 4 digits entered (for keypad)
+  if (inputCode.length() == 4) {
+    Serial.println();
+    checkCode();
+    inputCode = "";
+    Serial.println("Enter code:");
   }
 
   delay(50);
