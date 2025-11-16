@@ -35,7 +35,7 @@ Once added, the collaborator needs to:
    cd backend
    npm install
    cp .env.example .env  # Edit .env with their own API keys
-   
+
    # Frontend setup
    cd ../frontend
    npm install
