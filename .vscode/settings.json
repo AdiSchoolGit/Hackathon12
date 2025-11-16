@@ -9,9 +9,9 @@
   "typescript.preferences.quoteStyle": "single",
 
   "editor.codeActionsOnSave": {
-    "source.fixAll": false,
-    "source.fixAll.eslint": false,
-    "source.organizeImports": false
+    "source.fixAll": "never",
+    "source.fixAll.eslint": "never",
+    "source.organizeImports": "never"
   },
 
   "eslint.enable": false,
@@ -23,8 +23,8 @@
     "editor.formatOnType": false,
     "editor.defaultFormatter": null,
     "editor.codeActionsOnSave": {
-      "source.fixAll": false,
-      "source.fixAll.eslint": false
+      "source.fixAll": "never",
+      "source.fixAll.eslint": "never"
     }
   },
 
@@ -34,8 +34,8 @@
     "editor.formatOnType": false,
     "editor.defaultFormatter": null,
     "editor.codeActionsOnSave": {
-      "source.fixAll": false,
-      "source.fixAll.eslint": false
+      "source.fixAll": "never",
+      "source.fixAll.eslint": "never"
     }
   },
 

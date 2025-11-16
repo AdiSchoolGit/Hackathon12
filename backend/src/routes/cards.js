@@ -21,6 +21,7 @@ import {
 import { extractInfoFromImage } from '../services/ocrService.js';
 import { notifyOwnerOfFoundCard } from '../services/notificationService.js';
 import { getEmailByRedId, getAllMappings } from '../services/redIdEmailMap.js';
+import { sendPickupCodeToArduino } from '../talkToArduino.js';
 
 const router = express.Router();
 
@@ -96,6 +97,17 @@ router.post('/found-card-photo', upload.single('cardImage'), async(req, res) => 
             pickupCode: pickupCode,
             status: 'waiting_for_email'
         });
+
+        // Send pickup code to Arduino if generated
+        if (pickupCode && boxId) {
+            try {
+                sendPickupCodeToArduino(pickupCode, boxId, card.id);
+                console.log(`[Route] Sent pickup code ${pickupCode} to Arduino for ${boxId}`);
+            } catch (error) {
+                console.error('[Route] Error sending pickup code to Arduino:', error);
+                // Don't fail the request if Arduino communication fails
+            }
+        }
 
         let extractedInfo = null;
         let emailSentStatus = false;
@@ -398,6 +410,16 @@ router.post('/found-card-redid', async(req, res) => {
             status: 'waiting_for_email'
         });
 
+        // Send pickup code to Arduino
+        if (pickupCode && boxId) {
+            try {
+                sendPickupCodeToArduino(pickupCode, boxId, card.id);
+                console.log(`[Route] Sent pickup code ${pickupCode} to Arduino for ${boxId}`);
+            } catch (error) {
+                console.error('[Route] Error sending pickup code to Arduino:', error);
+            }
+        }
+
         let owner = null;
         const email = getEmailByRedId(redId);
         if (email) {
@@ -639,6 +661,14 @@ router.post('/cards/:id/set-email', async(req, res) => {
         if (card.boxId && !pickupCode) {
             pickupCode = generatePickupCode(4);
             updateCard(card.id, { pickupCode });
+
+            // Send pickup code to Arduino
+            try {
+                sendPickupCodeToArduino(pickupCode, card.boxId, card.id);
+                console.log(`[Admin] Sent pickup code ${pickupCode} to Arduino for ${card.boxId}`);
+            } catch (error) {
+                console.error('[Admin] Error sending pickup code to Arduino:', error);
+            }
         }
 
         updateCard(card.id, { email });

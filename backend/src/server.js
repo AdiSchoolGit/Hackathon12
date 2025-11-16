@@ -5,6 +5,8 @@ import cardsRouter from './routes/cards.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
+// Initialize Arduino communication (will attempt to connect on module load)
+import './talkToArduino.js';
 
 // Load environment variables (optional - will use defaults if .env doesn't exist)
 try {
