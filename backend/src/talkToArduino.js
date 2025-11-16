@@ -14,29 +14,31 @@ let isPortOpen = false;
 
 // Common Arduino serial port paths (will try to auto-detect)
 const commonPorts = [
+    '/dev/cu.usbmodem110',  // macOS (Arduino 110)
+    '/dev/cu.usbserial-110', // macOS (alternative)
     '/dev/cu.usbmodem101',  // macOS
-    '/dev/cu.usbmodem1101',
-    '/dev/ttyUSB0',          // Linux
-    '/dev/ttyACM0',          // Linux
-    'COM3',                  // Windows
-    'COM4'                   // Windows
+    '/dev/cu.usbmodem1101', // macOS
+    '/dev/ttyUSB0',         // Linux
+    '/dev/ttyACM0',         // Linux
+    'COM3',                 // Windows
+    'COM4'                  // Windows
 ];
 
 /**
  * Initialize serial port connection to Arduino
  * @param {string} portPath - Optional port path, will auto-detect if not provided
  */
-export function initializeArduinoConnection(portPath = null) {
+export async function initializeArduinoConnection(portPath = null) {
     if (isPortOpen && serialPort) {
         console.log('[Arduino] Serial port already connected');
         return true;
     }
 
-    const path = portPath || findArduinoPort();
-    
+    const path = portPath || await findArduinoPort();
+
     if (!path) {
         console.log('[Arduino] ⚠️ No Arduino port found. Pickup codes will be stored but not sent.');
-        console.log('[Arduino] Available ports will be checked when codes are sent.');
+        console.log('[Arduino] 💡 Tip: Close Arduino IDE Serial Monitor if it\'s open, then restart server');
         return false;
     }
 
@@ -49,24 +51,31 @@ export function initializeArduinoConnection(portPath = null) {
 
         serialPort.open((err) => {
             if (err) {
-                console.error('[Arduino] ❌ Error opening port:', err.message);
+                if (err.message.includes('Cannot lock port') || err.message.includes('Resource temporarily unavailable')) {
+                    console.error('[Arduino] ❌ Port is locked. Close Arduino IDE Serial Monitor and restart server.');
+                } else {
+                    console.error('[Arduino] ❌ Error opening port:', err.message);
+                }
                 isPortOpen = false;
                 return false;
             }
             isPortOpen = true;
             console.log(`[Arduino] ✅ Connected to ${path}`);
-            
+            console.log('[Arduino] 📡 Ready to send pickup codes');
+
             // Send all stored codes to Arduino
             sendAllStoredCodes();
         });
 
         // Listen for Arduino responses
         serialPort.on('data', (data) => {
-            console.log('[Arduino] Received:', data.toString().trim());
+            console.log('[Arduino] 📥 Received:', data.toString().trim());
         });
 
         serialPort.on('error', (err) => {
-            console.error('[Arduino] ❌ Serial port error:', err.message);
+            if (!err.message.includes('Serial port is closed')) {
+                console.error('[Arduino] ❌ Serial port error:', err.message);
+            }
             isPortOpen = false;
         });
 
@@ -83,13 +92,36 @@ export function initializeArduinoConnection(portPath = null) {
 }
 
 /**
- * Find Arduino port by trying common paths
- * @returns {string|null} Port path or null
+ * Find Arduino port by trying common paths or auto-detecting
+ * @returns {Promise<string|null>} Port path or null
  */
-function findArduinoPort() {
-    // For now, return the first common port
-    // In production, you might want to use SerialPort.list() to auto-detect
-    return commonPorts[0] || null;
+async function findArduinoPort() {
+    try {
+        // Try to auto-detect using SerialPort.list()
+        const { SerialPort } = await
+        import ('serialport');
+        const ports = await SerialPort.list();
+
+        // Look for USB modem ports (Arduino typically shows up as usbmodem)
+        const arduinoPort = ports.find(port => {
+            const hasUsbModem = port.path.includes('usbmodem');
+            const hasUsbSerial = port.path.includes('usbserial');
+            const hasArduinoManufacturer = port.manufacturer && port.manufacturer.toLowerCase().includes('arduino');
+            return hasUsbModem || hasUsbSerial || hasArduinoManufacturer;
+        });
+
+        if (arduinoPort) {
+            console.log(`[Arduino] 🔍 Auto-detected port: ${arduinoPort.path}`);
+            return arduinoPort.path;
+        }
+
+        // Fallback to common ports
+        console.log('[Arduino] 🔍 Trying common ports...');
+        return commonPorts[0] || null;
+    } catch (error) {
+        console.log('[Arduino] ⚠️ Could not auto-detect port, using default');
+        return commonPorts[0] || null;
+    }
 }
 
 /**
@@ -118,7 +150,9 @@ export function sendPickupCodeToArduino(pickupCode, boxId, cardId) {
 
     // Try to initialize connection if not already connected
     if (!isPortOpen) {
-        initializeArduinoConnection();
+        initializeArduinoConnection().catch(err => {
+            console.error('[Arduino] Error initializing connection:', err);
+        });
     }
 
     // Send to Arduino if port is open
@@ -166,7 +200,7 @@ export function sendAllStoredCodes() {
     }
 
     console.log(`[Arduino] 📤 Sending ${pickupCodesStore.length} stored pickup codes...`);
-    
+
     pickupCodesStore.forEach((entry, index) => {
         setTimeout(() => {
             if (!entry.sent) {
@@ -197,7 +231,7 @@ export function clearStoredCodes() {
 // You can also call initializeArduinoConnection() manually with a specific port
 if (typeof process !== 'undefined') {
     // Only try to connect if running in Node.js (not during tests)
-    setTimeout(() => {
-        initializeArduinoConnection();
+    setTimeout(async() => {
+        await initializeArduinoConnection();
     }, 2000); // Wait 2 seconds for system to be ready
 }

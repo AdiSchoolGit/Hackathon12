@@ -96,7 +96,7 @@ void loop() {
   // This runs continuously to catch backend messages
   while (Serial.available() > 0) {
     char c = Serial.read();
-    
+
     // If we see 'C', start building a potential CODE message
     if (c == 'C' && serialBuffer.length() == 0) {
       serialBuffer = "C";
@@ -104,20 +104,20 @@ void loop() {
     // If we're building a CODE message, continue
     else if (serialBuffer.length() > 0) {
       serialBuffer += c;
-      
+
       // Check if we have a complete line
       if (c == '\n' || c == '\r') {
         serialBuffer.trim();
-        
+
         // Parse format: "CODE:1234:BOX_1"
         if (serialBuffer.startsWith("CODE:")) {
           int codeStart = 5; // After "CODE:"
           int codeEnd = serialBuffer.indexOf(':', codeStart);
-          
+
           if (codeEnd > codeStart) {
             String pickupCode = serialBuffer.substring(codeStart, codeEnd);
             String receivedBoxId = serialBuffer.substring(codeEnd + 1);
-            
+
             // Only store if it's for this box
             if (receivedBoxId == boxId) {
               addValidCode(pickupCode);
@@ -126,10 +126,10 @@ void loop() {
             }
           }
         }
-        
+
         serialBuffer = "";
       }
-      
+
       // Reset if buffer gets too long (not a CODE message)
       if (serialBuffer.length() > 50) {
         serialBuffer = "";
@@ -159,7 +159,7 @@ void loop() {
       }
     }
   }
-  
+
   // Handle auto-submit when 4 digits entered (for keypad)
   if (inputCode.length() == 4) {
     Serial.println();
@@ -224,7 +224,7 @@ void addValidCode(String code) {
       return; // Already stored
     }
   }
-  
+
   // Add to list if there's space
   if (codeCount < 20) {
     validCodes[codeCount] = code;
@@ -242,7 +242,7 @@ void addValidCode(String code) {
 void checkCode() {
   Serial.print("Verifying code: ");
   Serial.println(inputCode);
-  
+
   // First check if code is in stored list (fast check)
   bool foundInList = false;
   for (int i = 0; i < codeCount; i++) {
@@ -252,7 +252,7 @@ void checkCode() {
       break;
     }
   }
-  
+
   // Also verify with backend (for security and status update)
   Serial.print("Connecting to server... ");
 

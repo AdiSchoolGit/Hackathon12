@@ -19,7 +19,7 @@ The default port path is `/dev/cu.usbmodem101` (macOS). To change it:
    ```bash
    # macOS/Linux
    ls /dev/cu.* /dev/tty.* | grep -i usb
-   
+
    # Or check Arduino IDE: Tools > Port
    ```
 
@@ -47,33 +47,33 @@ Add this to your Arduino `loop()` function:
 ```cpp
 void loop() {
   // ... existing code ...
-  
+
   // Check for incoming serial data
   if (Serial.available() > 0) {
     String message = Serial.readStringUntil('\n');
     message.trim();
-    
+
     // Parse format: "CODE:1234:BOX_1"
     if (message.startsWith("CODE:")) {
       int codeStart = 5; // After "CODE:"
       int codeEnd = message.indexOf(':', codeStart);
-      
+
       if (codeEnd > codeStart) {
         String pickupCode = message.substring(codeStart, codeEnd);
         String boxId = message.substring(codeEnd + 1);
-        
+
         Serial.print("Received code: ");
         Serial.print(pickupCode);
         Serial.print(" for box: ");
         Serial.println(boxId);
-        
+
         // Store the code or add to your code list
         // You can add it to an array of valid codes
         addValidCode(pickupCode, boxId);
       }
     }
   }
-  
+
   // ... rest of your code ...
 }
 
