@@ -1,0 +1,29 @@
+.App {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    width: 100%;
+    background: #fafafa;
+}
+
+.main-content {
+    flex: 1;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 1.5rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 1rem 0.75rem;
+    }
+}

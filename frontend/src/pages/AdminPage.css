@@ -1,0 +1,340 @@
+.admin-page {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    border: 1px solid rgba(196, 18, 48, 0.08);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.login-container {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.login-form {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.logout-button {
+    padding: 0.75rem 1.5rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    white-space: nowrap;
+    letter-spacing: -0.011em;
+}
+
+.logout-button:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+}
+
+.admin-page:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.admin-page h1 {
+    margin-bottom: 0.75rem;
+    color: #1a1a1a;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.022em;
+    margin-top: 0;
+}
+
+.admin-page h1::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 3px;
+    background: linear-gradient(135deg, #C41230 0%, #A01028 100%);
+    margin-top: 0.75rem;
+    border-radius: 2px;
+}
+
+.page-description {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: -0.011em;
+    max-width: 800px;
+}
+
+.admin-actions {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.refresh-button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #C41230 0%, #A01028 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    letter-spacing: -0.011em;
+    box-shadow: 0 2px 4px rgba(196, 18, 48, 0.2);
+}
+
+.refresh-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #A01028 0%, #8B0E20 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(196, 18, 48, 0.3);
+}
+
+.refresh-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.loading-message,
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.card-item {
+    background: #f8f9fa;
+    border: 1px solid #e5e5ea;
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.card-item:hover {
+    border-color: #C41230;
+    box-shadow: 0 2px 4px rgba(196, 18, 48, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.card-id-small {
+    font-size: 13px;
+    color: #666;
+    font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #C41230 0%, #A01028 100%);
+}
+
+.card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.detail-row strong {
+    color: #1a1a1a;
+    min-width: 100px;
+    font-weight: 600;
+}
+
+.card-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e5ea;
+}
+
+.set-email-button,
+.send-email-button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #C41230 0%, #A01028 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    letter-spacing: -0.011em;
+    box-shadow: 0 2px 4px rgba(196, 18, 48, 0.2);
+}
+
+.set-email-button:hover:not(:disabled),
+.send-email-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #A01028 0%, #8B0E20 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(196, 18, 48, 0.3);
+}
+
+.set-email-button:disabled,
+.send-email-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.email-input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.email-input {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d1d6;
+    border-radius: 10px;
+    font-size: 15px;
+    line-height: 1.5;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+    letter-spacing: -0.011em;
+}
+
+.email-input:hover {
+    border-color: #C41230;
+    background: #fafafa;
+}
+
+.email-input:focus {
+    outline: none;
+    border-color: #C41230;
+    box-shadow: 0 0 0 3px rgba(196, 18, 48, 0.1);
+    background: #ffffff;
+}
+
+.email-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.cancel-button {
+    padding: 0.75rem 1.5rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    letter-spacing: -0.011em;
+}
+
+.cancel-button:hover:not(:disabled) {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+}
+
+.cancel-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.help-text {
+    font-size: 13px;
+    color: #666;
+    font-style: italic;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.error-message {
+    margin-bottom: 2rem;
+    padding: 1rem 1.25rem;
+    background: #fff5f5;
+    border: 1px solid #C41230;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(196, 18, 48, 0.1);
+    color: #8B0E20;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .admin-page {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+    .admin-page h1 {
+        font-size: 1.75rem;
+    }
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .email-actions {
+        flex-direction: column;
+    }
+    .email-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-page {
+        padding: 1rem;
+    }
+    .admin-page h1 {
+        font-size: 1.5rem;
+    }
+}

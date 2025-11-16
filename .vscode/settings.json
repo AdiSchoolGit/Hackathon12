@@ -1,0 +1,26 @@
+{
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  "[javascript]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": null,
+    "editor.codeActionsOnSave": {}
+  },
+  "[typescript]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.defaultFormatter": null,
+    "editor.codeActionsOnSave": {}
+  },
+  "files.associations": {
+    "**/cards.js": "javascript"
+  },
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "single"
+}

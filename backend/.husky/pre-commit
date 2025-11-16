@@ -1,0 +1,7 @@
+#!/bin/sh
+# Pre-commit hook to check syntax before committing
+. "$(dirname "$0")/_/husky.sh"
+
+cd backend
+./check-syntax.sh
+
